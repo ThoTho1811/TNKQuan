@@ -1,0 +1,12 @@
+UC:
+Thực thể chính: Sinh vien ,Giao Vien
+Nghiệp vụ:
+Sinh viên:1.Tham gia thi
+Giáo Viên:
+2:Soạn ngân hàng câu hỏi
+cập nhật ngân hàng câu hỏi
+Khoa
+-duyệt ngân hàng câu hỏi
+Phòng khảo thí:
+tạo đề thi
+trộn đề thi
