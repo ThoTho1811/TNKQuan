@@ -13,6 +13,13 @@ create table BAITHI
 	CAUTL nvarchar(500) not null,
 	TINHTRANG int,
 );
+--Table KocKy
+create table HOCKY
+(	
+	ID_HOCKY char(10) not null primary key(ID_HOCKY) constraint PK_HOCKY default dbo.AUTO_IDHOCKY() ,
+	TENHK nvarchar(50), 
+	NIENKHOA nvarchar(50), 
+);
 --Table Chi tiet de thi
 Create table CTDTHI
 (
@@ -43,9 +50,9 @@ Create table CTDTHI
  );
  --Table Điểm Thi
  Create table DIEMTHI(
-	ID_DIEMTHI char(10) not null,
+	ID_DIEMTHI char(10) not null primary key(ID_DIEMTHI) constraint PK_DIEMTHI default dbo.AUTO_IDDIEMTHI(),
 	DIEMTHI float,
-	constraint PK_DIEMTHI primary key(ID_DIEMTHI)
+	--constraint PK_DIEMTHI primary key(ID_DIEMTHI)
  );
  --Table Giảng Viên
  Create table GIANGVIEN(
@@ -70,14 +77,14 @@ create table KHOA(
 );
 --Table Lịch thi
 create table LICHTHI(
-	ID_LICHTHI char(10)not null ,--primary key(ID_LICHTHI) constraint PK_LICHTHI default DBO.AUTO_IDLICHTHI(),
+	ID_LICHTHI char(10)not null primary key(ID_LICHTHI) constraint PK_LICHTHI default DBO.AUTO_IDLICHTHI(),
 	TENLICHTHI nvarchar(50),
 	NGAYTAO datetime,
 	NGAYTHI date,
 	Tiet nvarchar(10),
 	ID_GVIEN char(10) not null,
 	ID_MONHOC char(10) not null,
-	constraint PK_LICHTHI primary key(ID_LICHTHI)
+	--constraint PK_LICHTHI primary key(ID_LICHTHI)
 );
 --Table Lớp
 create table LOPHOCPHAN(
@@ -201,10 +208,11 @@ begin
 	if(select count(ID_BAITHI) from BAITHI)=0
 		Set @ID='0'
 	else
-		Select @ID = MAX(RIGHT(ID_BAITHI,3)) from BAITHI
+		Select @ID = MAX(RIGHT(REPLACE(ID_BAITHI,' ',''),3)) from BAITHI
 		Select @ID = CASE
-				When @ID >= 0 and @ID < 9 then 'BT00' + CONVERT(char,CONVERT(INT,@ID)+1)
-				When @ID >=9 then 'BT0'+CONVERT(Char,Convert(INT,@ID)+1)
+				When @ID >= 0 and @ID < 9 then REPLACE('BT00' + CONVERT(char,@ID+1),' ','')
+				When @ID >=9 then REPLACE('BT0'+CONVERT(Char,@ID+1),' ','')
+				When @ID >=99 then REPLACE('BT'+CONVERT(Char,@ID+1),' ','')
 		end
 	return @ID
 end
@@ -270,5 +278,50 @@ begin
 				When @ID >= 0 and @ID < 9 then 'BT00' + CONVERT(char,CONVERT(INT,@ID)+1)
 				When @ID >=9 then 'BT0'+CONVERT(Char,Convert(INT,@ID)+1)
 		end
+	return @ID
+end
+--Function DIEMTHI
+create function AUTO_IDDIEMTHI()
+returns varchar(10)
+as 
+begin
+	Declare @ID Varchar(10)
+	if(select count(ID_DIEMTHI) from DIEMTHI)=0
+		Set @ID='0'
+	else
+		Select @ID = MAX(RIGHT(REPLACE(ID_DIEMTHI,' ',''),3)) from DIEMTHI
+		Select @ID = CASE
+				When @ID >= 0 and @ID < 9 then REPLACE('DT00' + CONVERT(char,@ID+1),' ','')
+				When @ID >=9 then REPLACE('DT0'+CONVERT(Char,@ID+1),' ','')
+				When @ID >=99 then REPLACE('DT'+CONVERT(Char,@ID+1),' ','')
+		end
+	return @ID
+end
+--Function LICHTHI
+create function AUTO_IDLICHTHI()
+returns varchar(10)
+as 
+begin
+	Declare @ID Varchar(10)
+	if(select count(ID_LICHTHI) from LICHTHI)=0
+		Set @ID='0'
+	else
+		Select @ID = MAX(RIGHT(ID_LICHTHI,2)) from LICHTHI
+		Select @ID = CASE
+				When @ID >= 0 and @ID < 9 then REPLACE(CONVERT(char,GETDATE(),112)+'0'+CONVERT(char,CONVERT(INT,@ID)+1),' ','')
+				When @ID >=9 then REPLACE(CONVERT(char,GETDATE(),112)+CONVERT(Char,Convert(INT,@ID)+1),' ','')
+		end
+	return @ID
+end
+--Function HOCKY
+create function AUTO_IDHOCKY()
+returns varchar(10)
+as 
+begin
+	Declare @ID Varchar(10)
+	if(select MAX(LEFT(ID_HOCKY,4)) from HOCKY)=YEAR(GETDATE())
+		Select @ID = REPLACE(CONVERT(char,YEAR(GETDATE()))+'000HK2',' ','')
+	else
+		Select @ID = REPLACE(CONVERT(char,YEAR(GETDATE()))+'000HK1',' ','')
 	return @ID
 end
